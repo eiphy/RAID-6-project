@@ -12,11 +12,6 @@ class Role():
     def kiss(self, role):
         print(f'{self.name} kissed {role.name}')
 
-for (size_t i{0}; i < 10; i++) {
-    print(i);
-    print(i);
-}
-
 for i in range(10):
     print(i)
     if i == 3:

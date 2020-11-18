@@ -2,6 +2,7 @@ import random
 from pathlib import Path
 
 import util as U
+import converter as C
 
 class Disk():
     def __init__(self, disk_id, disk_type="normal"):

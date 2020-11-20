@@ -14,15 +14,20 @@ class Driver():
         '''Write data to disks.'''
         data, P, Q = self.preprocess_write_data(s)
         write_data = self.generate_write_data(data, P, Q)
+        self._write_data(write_data)
+    
+    def _write_data(self, data):
         for i, disk in enumerate(self.disks):
-            disk.write_to_file(write_data[i])
+            disk.write_to_file(data[i])
 
     def read_data(self):
         '''Read data from disks.'''
-        stat = self.check_disk_status()
         data = [[] for _ in range(self.N)]
         for i, disk in enumerate(self.disks):
             data[i] = disk.read_file(0)
+        lost = self.check_disk_lost()
+        data = self.recover_data(data, lost)
+
         data, _, _ = self.combine_read_data(data)
         content = []
         for d in data:
@@ -44,46 +49,27 @@ class Driver():
 
     def combine_read_data(self, _data):
         N = len(_data[0])
-        p_pos, q_pos = self.N - 2, self.N - 1
         data = []
         P = []
         Q = []
-        for i in range(N):
+        for r in range(N):
+            p_pos, q_pos = self.get_pq_id(r)
             for j in range(self.N):
                 if j == p_pos:
-                    P.append(_data[j][i])
+                    P.append(_data[j][r])
                 elif j == q_pos:
-                    Q.append(_data[j][i])
+                    Q.append(_data[j][r])
                 else:
-                    data.append(_data[j][i])
-            p_pos = self._change_special_pos(p_pos)
-            q_pos = self._change_special_pos(q_pos)
+                    data.append(_data[j][r])
 
         return data, P, Q
-
-    # def generate_matrix_from_data(self, _data):
-    #     N = len(data[0])
-    #     p_pos, q_pos = self.N - 2, self.N - 1
-    #     data = []
-    #     P = []
-    #     Q = []
-    #     for i in range(N):
-    #         for j in range(self.N):
-    #             if j == p_pos:
-    #                 P.append(_data[j][i])
-    #             elif j == q_pos:
-    #                 Q.append(_data[j][i])
-    #             else:
-    #                 data.append(_data[j][i])
-
-    #     return data, P, Q
 
     def generate_write_data(self, data, P, Q):
         '''Generate writing data.'''
         write_data = [[] for _ in range(self.N)]
-        p_pos, q_pos = self.N - 2, self.N - 1
         for r, d in enumerate(data):
             offset = 0
+            p_pos, q_pos = self.get_pq_id(r)
             for i in range(self.N):
                 pos = i - offset
                 if i == p_pos:
@@ -95,20 +81,30 @@ class Driver():
                 else:
                     pos = i - offset
                     write_data[i].append(d[pos])
-            p_pos = self._change_special_pos(p_pos)
-            q_pos = self._change_special_pos(q_pos)
-            assert p_pos != q_pos, "p and q have the same position!"
 
         return write_data
 
-    def _change_special_pos(self, pos):
-        pos -= 1
-        if pos < 0:
-            pos = self.N - 1
-        return pos
-
-    def recover_data(self):
+    def recover_data(self, data, lost):
         '''Recover data.'''
+        if not (True in lost):
+            return data
+
+        lost_id = []
+        for i, s in enumerate(lost):
+            if s:
+                lost_id.append(i)
+
+        gn_data = C.data_to_gn(data)
+
+        if len(lost_id) == 1:
+            gn_data = self._recover_1(gn_data, lost_id[0])
+        else:
+            gn_data = self._recover_2(gn_data, lost_id)
+
+        self._write_data(gn_data)
+        data = C.gn_to_data(gn_data)
+
+        return data
 
     def compute_pq(self, data):
         '''Compute pq'''
@@ -135,10 +131,48 @@ class Driver():
 
         return m, P, Q
 
-    def check_disk_status(self):
-        return [False if disk.if_lost else True for disk in self.disks]
+    def check_disk_lost(self):
+        return [disk.if_lost for disk in self.disks]
+
+    def _recover_1(self, data, lost_id):
+        N_row = len(data[0])
+        lost_data = []
+        for r in range(N_row):
+            p_pos, q_pos = self.get_pq_id(r)
+            row_data = [d[r] for d in data]
+            temp = GN(0)
+
+            offset = 0
+            for i, d in enumerate(row_data):
+                if lost_id == p_pos:
+                    if i == q_pos:
+                        continue
+                    temp = temp + d
+                elif lost_id == q_pos:
+                    if i == lost_id or i == p_pos:
+                        offset += 1
+                        continue
+                    temp = temp + GN(GN.power_table[i-offset]) * d
+                else:
+                    if i == 0:
+                        temp = row_data[p_pos]
+                    if i == p_pos or i == q_pos:
+                        continue
+                    temp = temp - d
+            lost_data.append(temp)
+
+        data[lost_id] = lost_data
+
+        return data
+
+    def _recover_2(self, data, lost_id):
+        return data
+
+    def get_pq_id(self, r):
+        return self.N - 1 - (r + 1) % self.N, self.N - 1 - r % self.N
 
 if __name__ == "__main__":
     d = Driver(5)
     d.write_data("hello world!")
+    d.disks[0].lost_data()
     print(d.read_data())

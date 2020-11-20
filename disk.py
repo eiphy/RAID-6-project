@@ -18,7 +18,7 @@ class Disk():
         self.if_lost = False
         self.file = f'{disk_id}.txt'
 
-        with open(f'{disk_id}.txt', 'w'):
+        with open(f'disk/{disk_id}.txt', 'w'):
             pass
 
     def write_to_file(self, data):
@@ -62,7 +62,7 @@ class Disk():
             A tuple of reading hexadecimal numbers.
         '''
         if self.if_lost:
-            return None
+            return [0 for _ in range(self.size)]
 
         with open(self.file, 'r') as f:
             f.seek(start)
@@ -80,7 +80,7 @@ class Disk():
 
         return data
 
-    def lost_data(self, n):
+    def lost_data(self):
         '''Lost n bytes in the disk randomly.'''
         self.if_lost = True
     

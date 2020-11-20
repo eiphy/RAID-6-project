@@ -38,8 +38,8 @@ class Disk():
 
         content = []
         for d in data:
-            assert d < 255, "Value is bigger than 255!"
-            content.append("{:02x}".format(d))
+            assert d.value < 255, "Value is bigger than 255!"
+            content.append("{:02x}".format(d.value))
 
         with open(self.file, 'a') as f:
             for c in content:
@@ -52,7 +52,7 @@ class Disk():
 
         return start, end
 
-    def read_file(self, start, end):
+    def read_file(self, start, end=-1):
         '''Read from file and return the hexadecimal number.
         Args:
             start: Start reading position.
@@ -61,9 +61,15 @@ class Disk():
         Return:
             A tuple of reading hexadecimal numbers.
         '''
+        if self.if_lost:
+            return None
+
         with open(self.file, 'r') as f:
             f.seek(start)
-            size = (end - start) * 2
+            if end == -1:
+                size = self.size * 2
+            else:
+                size = (end - start) * 2
             data_temp = f.read(size)
 
         data = []

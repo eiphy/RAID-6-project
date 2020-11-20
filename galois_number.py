@@ -51,6 +51,24 @@ class GaloisNum():
                 (self.log_table[self.value] - self.log_table[other.value]) % 255
             ])
 
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+    def __le__(self, other):
+        return self.value <= other.value
+
+    def __ge__(self, other):
+        return self.value >= other.value
+
+    def __eq__(self, other):
+        return self.value == other.value
+
+    def __ne__(self, other):
+        return self.value != other.value
+
     def __repr__(self):
-        return hex(self.value)
+        return f"{hex(self.value)}: {chr(self.value)}"
         

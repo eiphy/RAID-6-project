@@ -15,6 +15,7 @@ class Disk():
         self.id = disk_id
         self.size = 0
         self.capacity = capacity
+        self.if_lost = False
 
     def write_to_file(self, data):
         '''Given a list of hexadecimal number, write it disk (file).
@@ -40,6 +41,10 @@ class Disk():
 
     def lost_data(self, n):
         '''Lost n bytes in the disk randomly.'''
+        self.if_lost = True
+    
+    def recover(self):
+        self.if_lost = False
     
     def __repr__(self):
         return f'Disk {self.id}, used: {self.size}, '                          \

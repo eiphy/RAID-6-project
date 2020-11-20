@@ -16,7 +16,7 @@ class Disk():
         self.size = 0
         self.capacity = capacity
         self.if_lost = False
-        self.disk_name = f'{disk_id}.txt'
+        self.file = f'{disk_id}.txt'
 
         with open(f'{disk_id}.txt', 'w'):
             pass
@@ -41,7 +41,7 @@ class Disk():
             assert d < 255, "Value is bigger than 255!"
             content.append("{:02x}".format(d))
 
-        with open(self.disk_name, 'a') as f:
+        with open(self.file, 'a') as f:
             for c in content:
                 f.write(c)
                 self.size += 1
@@ -61,16 +61,29 @@ class Disk():
         Return:
             A tuple of reading hexadecimal numbers.
         '''
+        with open(self.file, 'r') as f:
+            f.seek(start)
+            size = (end - start) * 2
+            data_temp = f.read(size)
+
+        data = []
+        for i in range(len(data_temp)):
+            if i % 2:
+                temp = int(data_temp[i-1] + data_temp[i], 16)
+                data.append(temp)
+
+        return data
 
     def lost_data(self, n):
         '''Lost n bytes in the disk randomly.'''
         self.if_lost = True
     
-    def recover(self):
+    def recovered(self):
         self.if_lost = False
     
     def __repr__(self):
-        return f'Disk {self.id}, used: {self.size}, '                          \
+        return f'Disk {self.id} ({"lost" if self.if_lost else "normal"}), '    \
+               f'used: {self.size}, '                                          \
                f'{self.size / self.capacity * 100}%'
 
 if __name__ == "__main__":
@@ -79,7 +92,13 @@ if __name__ == "__main__":
     # hex(a)
 
     d = Disk(0)
+    print(d)
 
     data = [10, 20,3 ,4, 5, 46,23]
 
-    d.write_to_file(data)
+    start, end = d.write_to_file(data)
+
+    print(d)
+
+    a = d.read_file(start, end)
+    print(a)

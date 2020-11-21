@@ -1,15 +1,17 @@
 from math import log2
 
-class GaloisNum():
-    '''Table for multiplation and divation.'''
-    power, log = [0] * 256, [0] *256
+
+class GaloisNum:
+    """Table for multiplation and divation."""
+
+    power, log = [0] * 256, [0] * 256
     n = 1
     for i in range(0, 256):
         power[i] = n
         log[n] = i
         n *= 2
         if n >= 256:
-            n = n ^ 0x11d
+            n = n ^ 0x11D
     log[1] = 0
     power_table = power
     log_table = log
@@ -17,8 +19,10 @@ class GaloisNum():
     del power
     del log
 
-    '''Definition for object methods.'''
+    """Definition for object methods."""
+
     def __init__(self, value):
+        assert type(value) is int, "Wront type!"
         self.value = value
 
     def get_bin(self):
@@ -29,7 +33,7 @@ class GaloisNum():
 
     def __add__(self, other):
         return GaloisNum(self.value ^ other.value)
-    
+
     def __sub__(self, other):
         return GaloisNum(self.value ^ other.value)
 
@@ -37,9 +41,11 @@ class GaloisNum():
         if self.value == 0 or other.value == 0:
             return GaloisNum(0)
         else:
-            return GaloisNum(self.power_table[
-                (self.log_table[self.value] + self.log_table[other.value]) % 255
-            ])
+            return GaloisNum(
+                self.power_table[
+                    (self.log_table[self.value] + self.log_table[other.value]) % 255
+                ]
+            )
 
     def __truediv__(self, other):
         if self.value == 0:
@@ -47,9 +53,11 @@ class GaloisNum():
         elif other.value == 0:
             raise RuntimeError("Deviede by 0!")
         else:
-            return GaloisNum(self.power_table[
-                (self.log_table[self.value] - self.log_table[other.value]) % 255
-            ])
+            return GaloisNum(
+                self.power_table[
+                    (self.log_table[self.value] - self.log_table[other.value]) % 255
+                ]
+            )
 
     def __lt__(self, other):
         return self.value < other.value
@@ -71,4 +79,27 @@ class GaloisNum():
 
     def __repr__(self):
         return f"{hex(self.value)}: {chr(self.value)}"
-        
+
+
+def compute_pq_row(m_row):
+    p = GaloisNum(0)
+    q = GaloisNum(0)
+    for i, x in enumerate(m_row):
+        p = p + x
+        q = q + GaloisNum(GaloisNum.power_table[i]) * x
+
+    return p, q
+
+
+def compute_pq(m):
+    N = len(m[0])
+    R = len(m)
+    P = []
+    Q = []
+    for r in range(R):
+        temp_p, temp_q = compute_pq_row([m[r][i] for i in range(N)])
+        P.append(temp_p)
+        Q.append(temp_q)
+
+    return P, Q
+

@@ -106,6 +106,24 @@ def get_pq_pos(r, N):
     return N - 1 - (r + 1) % N, N - 1 - r % N
 
 
+def get_matrix_id_from_disk_id(r, _i, N):
+    p, q = get_pq_pos(r, N)
+    assert _i not in (p, q), "Index is P or Q!"
+    offset = 0
+    if p < _i:
+        offset += 1
+    if q < _i:
+        offset += 1
+    return _i - offset
+
+
+def get_recover_id_1data(lost_ids, s_pos1):
+    disk_id = lost_ids[0] if lost_ids[1] == s_pos1 else lost_ids[1]
+    i_d = lost_ids.index(disk_id)
+    i_s = 0 if i_d == 1 else 1
+    return i_d, i_s, disk_id
+
+
 def padding_data(_data, N):
     data = deepcopy(_data)
     n = len(data) % (N - 2)

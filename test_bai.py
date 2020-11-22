@@ -1,79 +1,80 @@
-from galois_number import GaloisNum as GN
+from galois_filed import GaloisNum as GN
+
 
 def GF_test():
-    a = GN(0x7d)
-    b = GN(0x8f)
+    a = GN(0x7D)
+    b = GN(0x8F)
     print(a, a.get_bin(), a.get_dec())
     print(b, b.get_bin(), b.get_dec())
 
-    print('add:')
+    print("add:")
     c = a + b
     print(c, c.get_bin(), c.get_dec())
-    print('sub:')
+    print("sub:")
     c = a - b
     print(c, c.get_bin(), c.get_dec())
-    print('mul:')
+    print("mul:")
     c = a * b
     print(c, c.get_bin(), c.get_dec())
-    print('div:')
+    print("div:")
     c = a / b
     print(c, c.get_bin(), c.get_dec())
-    print('-------------------------------------------')
+    print("-------------------------------------------")
     a = GN(10)
     b = GN(2)
     print(a, a.get_bin(), a.get_dec())
     print(b, b.get_bin(), b.get_dec())
 
-    print('add:')
+    print("add:")
     c = a + b
     print(c, c.get_bin(), c.get_dec())
-    print('sub:')
+    print("sub:")
     c = a - b
     print(c, c.get_bin(), c.get_dec())
-    print('mul:')
+    print("mul:")
     c = a * b
     print(c, c.get_bin(), c.get_dec())
-    print('div:')
+    print("div:")
     c = a / b
     print(c, c.get_bin(), c.get_dec())
-    print('-------------------------------------------')
+    print("-------------------------------------------")
     a = GN(200)
     b = GN(2)
     print(a, a.get_bin(), a.get_dec())
     print(b, b.get_bin(), b.get_dec())
 
-    print('add:')
+    print("add:")
     c = a + b
     print(c, c.get_bin(), c.get_dec())
-    print('sub:')
+    print("sub:")
     c = a - b
     print(c, c.get_bin(), c.get_dec())
-    print('mul:')
+    print("mul:")
     c = a * b
     print(c, c.get_bin(), c.get_dec())
-    print('div:')
+    print("div:")
     c = a / b
     print(c, c.get_bin(), c.get_dec())
-    print('-------------------------------------------')
+    print("-------------------------------------------")
     a = GN(0)
     b = GN(2)
     print(a, a.get_bin(), a.get_dec())
     print(b, b.get_bin(), b.get_dec())
 
-    print('add:')
+    print("add:")
     c = a + b
     print(c, c.get_bin(), c.get_dec())
-    print('sub:')
+    print("sub:")
     c = a - b
     print(c, c.get_bin(), c.get_dec())
-    print('mul:')
+    print("mul:")
     c = a * b
     print(c, c.get_bin(), c.get_dec())
-    print('div:')
+    print("div:")
     c = a / b
     print(c, c.get_bin(), c.get_dec())
-    print('-------------------------------------------')
+    print("-------------------------------------------")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     GF_test()

@@ -7,10 +7,13 @@ from galois_filed import GaloisNum as GN
 class Driver:
     def __init__(self, num_disk):
         assert num_disk > 0, "num_disk <= 0!"
+        assert num_disk <= 255, "num_disk > 255!"
         self.N = num_disk
         self.disks = []
         for i in range(num_disk):
             self.disks.append(Disk(i))
+
+        GF.generate_recover_table()
 
     def write_data(self, s):
         """Write data to disks."""
@@ -81,44 +84,51 @@ class Driver:
         lost_data = []
         for r in range(R):
             p_pos, q_pos = U.get_pq_pos(r, self.N)
-            temp = GN(0)
+            p, q = GF.compute_pq_row(m[r])
 
             if lost_id == p_pos:
-                temp, _ = GF.compute_pq_row(m[r])
+                temp = p
             elif lost_id == q_pos:
-                _, temp = GF.compute_pq_row(m[r])
+                temp = q
             else:
-                temp_sum = GN(0)
-                for x in m[r]:
-                    temp_sum += x
-                temp = P[r] - temp_sum
+                temp = GF.recover_data_from_p(p, P[r])
 
             lost_data.append(temp)
 
         return lost_data
 
-    def _recover_2(self, m, P, Q, lost_id):
-        N_row = len(m[0])
-        lost_data = [[] for _ in lost_id]
-        offet = 0
+    def _recover_2(self, m, P, Q, lost_ids):
+        R = len(m)
+        lost_data = [[], []]
 
-        for r in range(N_row):
-            temp_p, temp_q = GN(0), GN(0)
+        for r in range(R):
             p_pos, q_pos = U.get_pq_pos(r, self.N)
-            row_data = [d[r] for d in m]
+            p, q = GF.compute_pq_row(m[r])
 
-            for i, d in enumerate(row_data):
-                if p_pos in lost_id and q_pos in lost_id:
-                    if i == p_pos or i == q_pos:
-                        offset += 1
-                        continue
-                    temp_p = temp_p + d
-                    temp_q = temp_q + GN(GN.power_table[i - offset]) * d
-                    temp = [temp_p, temp_q] if lost_id[0] == p_pos else [temp_q, temp_p]
+            if p_pos in lost_ids and q_pos in lost_ids:
+                temp = [p, q] if lost_ids[0] == p_pos else [q, p]
+            elif p_pos in lost_ids:
+                temp = [None, None]
+                i_d, i_s, disk_id = U.get_recover_id_1data(lost_ids, p_pos)
+                i_m = U.get_matrix_id_from_disk_id(r, disk_id, self.N)
+
+                temp[i_d] = GF.recover_data_from_q(q, Q[r], i_m)
+                temp[i_s], _ = GF.compute_pq_row(m[r])
+            elif q_pos in lost_ids:
+                temp = [None, None]
+                i_d, i_s, disk_id = U.get_recover_id_1data(lost_ids, q_pos)
+
+                temp[i_d] = GF.recover_data_from_p(q, Q[r])
+                _, temp[i_s] = GF.compute_pq_row(m[r])
+            else:
+                x = U.get_matrix_id_from_disk_id(r, lost_ids[0], self.N)
+                y = U.get_matrix_id_from_disk_id(r, lost_ids[1], self.N)
+                temp = GF.recover_2data(P[r], Q[r], p, q, x, y)
 
             lost_data[0].append(temp[0])
             lost_data[1].append(temp[1])
-        return m
+
+        return lost_data
 
 
 if __name__ == "__main__":

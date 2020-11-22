@@ -18,6 +18,8 @@ class Disk:
         self.if_lost = False
         self.file = f"disk/{disk_id}.txt"
 
+        Path("disk").mkdir(parents=True, exist_ok=True)
+
         with open(self.file, "w"):
             pass
 

@@ -142,7 +142,7 @@ def recover_data_from_p(px, p):
 def recover_data_from_q(qx, q, x):
     assert type(q) is GaloisNum, "Wrong type of p"
     assert type(qx) is GaloisNum, "Wrong type of px"
-    return (q + qx) * pow(255 - x)
+    return (q + qx) * pow2(255 - x)
 
 
 def recover_2data(p, q, pxy, qxy, x, y):

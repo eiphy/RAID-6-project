@@ -5,7 +5,7 @@ import util as U
 
 
 class Disk:
-    def __init__(self, disk_id, capacity=102400):
+    def __init__(self, disk_id, capacity=102400, clear=False):
         """Initialize the Disk class.
         
         Create and maintain a ascii table as a dictionary.
@@ -13,15 +13,18 @@ class Disk:
         disk_id=10, then all data will write to file "10.txt" for this disk.
         """
         self.id = disk_id
-        self.size = 0
         self.capacity = capacity
         self.if_lost = False
         self.file = f"disk/{disk_id}.txt"
 
         Path("disk").mkdir(parents=True, exist_ok=True)
 
-        with open(self.file, "w"):
-            pass
+        with open(self.file, "a+") as f:
+            f.seek(0)
+            self.size = int(len(f.read()) / 2)
+
+        if clear:
+            self.clear_disk()
 
     def write_to_file(self, data):
         """Given a list of hexadecimal number, write it disk (file).
@@ -64,7 +67,7 @@ class Disk:
             A tuple of reading hexadecimal numbers.
         """
         if self.if_lost:
-            return [0 for _ in range(self.size)]
+            return None
 
         with open(self.file, "r") as f:
             f.seek(start)
@@ -85,6 +88,12 @@ class Disk:
     def lost_data(self):
         """Lost n bytes in the disk randomly."""
         self.if_lost = True
+        self.clear_disk()
+
+    def clear_disk(self):
+        with open(self.file, "w") as f:
+            pass
+        self.size = 0
 
     def recovered(self):
         self.if_lost = False

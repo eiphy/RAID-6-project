@@ -133,3 +133,11 @@ def padding_data(_data, N):
     assert len(data) % (N - 2) == 0, "Wrong padding!"
 
     return data
+
+
+def padding_lost_data(_data, lost_ids):
+    N = len(_data[1]) if 0 in lost_ids else len(_data[0])
+    data = deepcopy(_data)
+    for i in lost_ids:
+        data[i] = [0 for _ in range(N)]
+    return data

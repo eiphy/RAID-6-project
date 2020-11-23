@@ -5,10 +5,11 @@ from galois_filed import GaloisNum as GN
 
 
 class Driver:
-    def __init__(self, num_disk, clear=False):
+    def __init__(self, num_disk, clear=False, block_size=10):
         assert num_disk > 0, "num_disk <= 0!"
         assert num_disk <= 255, "num_disk > 255!"
         self.N = num_disk
+        self.B = block_size
         self.disks = []
         for i in range(num_disk):
             self.disks.append(Disk(i, clear=clear))
@@ -18,9 +19,11 @@ class Driver:
     def write_data(self, s):
         """Write data to disks."""
         data = [ord(c) for c in s]
-        data = U.padding_data(data, self.N)
+        data = U.strip_data(data, self.N, self.B)
+        data = U.padding_data_block(data, self.N, self.B)
 
-        m, P, Q = U.seq_data_to_matrix(U.data_to_gn_seq(data), self.N)
+        gn_data = U.data_to_gn_seq_block(data)
+        m, P, Q = U.seq_data_to_matrix_block(gn_data, self.N, self.B)
 
         write_data = U.gn_to_data(U.matrix_to_disk_data(m, P, Q, self.N))
 
@@ -140,7 +143,7 @@ class Driver:
 
 
 if __name__ == "__main__":
-    d = Driver(5, clear=True)
+    d = Driver(6, clear=True)
     d.write_data(
         "Singapore Airlines is continuing to build back its North American route network with more flights to more cities across the US, ending an eight-month holding pattern during the pandemic that saw the airline operate only one American route.\nOn the heels of launching its newest route just last week between Singapore and New York, which earned the top spot of the world's longest flight by distance, the flag carrier is doubling down with increased flights to the West Coast. Starting in December, Los Angeles will see an increase in daily flights while San Francisco will see its first scheduled flights since April, both laying the foundation for the airline's post-pandemic recovery.\nThe first flight to San Francisco will depart Singapore on December 15 and return\ntwo days later on December 17. The Bay Area will start with three-times-weekly service departing to Singapore on Mondays, Thursdays, and Saturdays as the airline settles into the new route, which sees a duration of 14 hours and 40 minutes on the outbound leg and 17 hours and 35 minutes on the return. Los Angeles, for its part, will see increased frequencies from three weekly flights to five starting December 2, with service on all days of the week except Thursdays and Saturdays. Singapore Airlines never stopped flying the Singapore-Los Angeles route throughout the pandemic, which became its sole non-stop link to the US. Here!!"
     )

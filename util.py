@@ -5,14 +5,14 @@ from galois_filed import GaloisNum as GN
 
 
 def data_to_gn(data):
-    C = len(data)
-    R = len(data[0])
-    _data = [[] for _ in range(C)]
-    for i in range(C):
-        for j in range(R):
-            _data[i].append(GN(data[i][j]))
-
-    return _data
+    """Recursively transfer data to GF(2^8)."""
+    try:
+        temp = []
+        for x in data:
+            temp.append(data_to_gn(x))
+        return temp
+    except:
+        return GN(data)
 
 
 def data_to_gn_seq(data):
@@ -20,6 +20,17 @@ def data_to_gn_seq(data):
     for x in data:
         _data.append(GN(x))
 
+    return _data
+
+
+def data_to_gn_seq_block(data):
+    _data = []
+    B = len(data[0])
+    for b in data:
+        temp_b = []
+        for d in b:
+            temp_b.append(GN(d))
+        _data.append(temp_b)
     return _data
 
 
@@ -44,6 +55,23 @@ def seq_data_to_matrix(data, N):
             temp = []
         else:
             temp.append(data[i])
+
+    P, Q = GF.compute_pq(m)
+
+    return m, P, Q
+
+
+def seq_data_to_matrix_block(data, N, B):
+    m = []
+    temp = []
+    for i in range(0, len(data), N - 2):
+        temp = []
+        for j in range(B):
+            temp_b = []
+            for m in range(N - 2):
+                temp_b.append(data[i + m][j])
+            temp.append(temp)
+        m.extend(temp)
 
     P, Q = GF.compute_pq(m)
 
@@ -124,11 +152,33 @@ def get_recover_id_1data(lost_ids, s_pos1):
     return i_d, i_s, disk_id
 
 
+def strip_data(_data, N, B):
+    data = []
+    block = []
+    for i, d in enumerate(_data):
+        if i % B == 0 and i != 0:
+            data.append(block)
+            block = []
+        block.append(d)
+    return data
+
+
 def padding_data(_data, N):
     data = deepcopy(_data)
     n = len(data) % (N - 2)
     if n > 0:
         data.extend([0 for _ in range(N - 2 - n)])
+
+    assert len(data) % (N - 2) == 0, "Wrong padding!"
+
+    return data
+
+
+def padding_data_block(_data, N, B):
+    data = deepcopy(_data)
+    n = len(data) % (N - 2)
+    if n > 0:
+        data.extend([[0 for _ in range(B)] for _ in range(N - 2 - n)])
 
     assert len(data) % (N - 2) == 0, "Wrong padding!"
 

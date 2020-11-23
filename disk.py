@@ -7,9 +7,9 @@ import util as U
 class Disk:
     def __init__(self, disk_id, capacity=102400, clear=False):
         """Initialize the Disk class.
-        
+
         Create and maintain a ascii table as a dictionary.
-        Store the disk_id which will associated a file to this disk. e.g. 
+        Store the disk_id which will associated a file to this disk. e.g.
         disk_id=10, then all data will write to file "10.txt" for this disk.
         """
         self.id = disk_id
@@ -28,9 +28,9 @@ class Disk:
 
     def write_to_file(self, data):
         """Given a list of hexadecimal number, write it disk (file).
-        
+
         The file is defined by disk_id.
-        To be noticed, this should be finished by appending mode istead of 
+        To be noticed, this should be finished by appending mode istead of
         writing mode.
         Check and update the size.
 
@@ -43,7 +43,7 @@ class Disk:
 
         content = []
         for d in data:
-            assert d < 255, "Value is bigger than 255!"
+            assert d <= 255, "Value is bigger than 255!"
             content.append("{:02x}".format(d))
 
         with open(self.file, "a") as f:
@@ -69,12 +69,11 @@ class Disk:
         if self.if_lost:
             return None
 
+        size = self.size if end == -1 else start - end
+        size *= 2
+
         with open(self.file, "r") as f:
             f.seek(start)
-            if end == -1:
-                size = self.size * 2
-            else:
-                size = (end - start) * 2
             data_temp = f.read(size)
 
         data = []

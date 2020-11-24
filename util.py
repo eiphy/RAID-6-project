@@ -1,48 +1,63 @@
 from copy import deepcopy
 
+import algorithm as ALG
 import galois_filed as GF
 from galois_filed import GaloisNum as GN
 
 
 def data_to_gn(data):
     """Recursively transfer data to GF(2^8)."""
-    try:
-        temp = []
-        for x in data:
-            temp.append(data_to_gn(x))
-        return temp
-    except:
-        return GN(data)
-
-
-def data_to_gn_seq(data):
-    _data = []
-    for x in data:
-        _data.append(GN(x))
-
-    return _data
-
-
-def data_to_gn_seq_block(data):
-    _data = []
-    B = len(data[0])
-    for b in data:
-        temp_b = []
-        for d in b:
-            temp_b.append(GN(d))
-        _data.append(temp_b)
-    return _data
+    return ALG.transfer_data_list(data, lambda x: GN(x))
 
 
 def gn_to_data(data):
-    C = len(data)
-    R = len(data[0])
-    _data = [[] for _ in range(C)]
-    for i in range(C):
-        for j in range(R):
-            _data[i].append(data[i][j].value)
+    """Recursively transfer data to ordinary integers."""
+    return ALG.transfer_data_list(data, lambda x: x.value)
+
+
+def strip_data(_data, B):
+    """Strip data into different blocks."""
+    data = []
+    block = []
+    for i, d in enumerate(_data):
+        if i % B == 0 and i != 0:
+            data.append(block)
+            block = []
+        block.append(d)
+
+    if len(block) != 0:
+        data.append(block)
+
+    return data
+
+
+def block_data_to_seq(data):
+    N = len(data)
+    B = len(data[0])
+    _data = []
+    for i in range(N):
+        for j in range(B):
+            _data.append(data[i][j])
 
     return _data
+
+
+def block_data_to_matrix(data, N, B):
+    """Generate matrix from stripped data."""
+    data = padding_data_block(data, N, B)
+    m = []
+    for i in range(0, len(data), N - 2):
+        temp_block_row = []
+        for j in range(B):
+            temp_row = []
+            for m in range(N - 2):
+                temp_row.append(data[i + m][j])
+            temp_block_row.append(temp_row)
+        m.extend(temp_block_row)
+
+    P, Q = GF.compute_pq(m)
+
+    return m, P, Q
 
 
 def seq_data_to_matrix(data, N):
@@ -150,17 +165,6 @@ def get_recover_id_1data(lost_ids, s_pos1):
     i_d = lost_ids.index(disk_id)
     i_s = 0 if i_d == 1 else 1
     return i_d, i_s, disk_id
-
-
-def strip_data(_data, N, B):
-    data = []
-    block = []
-    for i, d in enumerate(_data):
-        if i % B == 0 and i != 0:
-            data.append(block)
-            block = []
-        block.append(d)
-    return data
 
 
 def padding_data(_data, N):

@@ -19,11 +19,10 @@ class Driver:
     def write_data(self, s):
         """Write data to disks."""
         data = [ord(c) for c in s]
-        data = U.strip_data(data, self.N, self.B)
-        data = U.padding_data_block(data, self.N, self.B)
+        data = U.padding_data(data, self.N)
 
-        gn_data = U.data_to_gn_seq_block(data)
-        m, P, Q = U.seq_data_to_matrix_block(gn_data, self.N, self.B)
+        gn_data = U.data_to_gn(data)
+        m, P, Q = U.seq_data_to_matrix(gn_data, self.N)
 
         write_data = U.gn_to_data(U.matrix_to_disk_data(m, P, Q, self.N))
 

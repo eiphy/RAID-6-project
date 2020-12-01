@@ -142,7 +142,7 @@ def test_data_conversion():
         print(len(block))
 
 
-def RAID_t_test():
+def RAID_recovery_test():
     driver = Driver(6, clear=True)
     driver.write_data(
         "Singapore Airlines is continuing to build back its North American route network with more flights to more cities across the US, ending an eight-month holding pattern during the pandemic that saw the airline operate only one American route.\nOn the heels of launching its newest route just last week between Singapore and New York, which earned the top spot of the world's longest flight by distance, the flag carrier is doubling down with increased flights to the West Coast. Starting in December, Los Angeles will see an increase in daily flights while San Francisco will see its first scheduled flights since April, both laying the foundation for the airline's post-pandemic recovery.\nThe first flight to San Francisco will depart Singapore on December 15 and return\ntwo days later on December 17. The Bay Area will start with three-times-weekly service departing to Singapore on Mondays, Thursdays, and Saturdays as the airline settles into the new route, which sees a duration of 14 hours and 40 minutes on the outbound leg and 17 hours and 35 minutes on the return. Los Angeles, for its part, will see increased frequencies from three weekly flights to five starting December 2, with service on all days of the week except Thursdays and Saturdays. Singapore Airlines never stopped flying the Singapore-Los Angeles route throughout the pandemic, which became its sole non-stop link to the US. Here!!"
@@ -154,4 +154,4 @@ def RAID_t_test():
 
 
 if __name__ == "__main__":
-    test_data_conversion()
+    RAUD_recoverty_test()
